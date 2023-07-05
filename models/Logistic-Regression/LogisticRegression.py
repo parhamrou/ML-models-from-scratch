@@ -11,12 +11,50 @@ class LogisticRegression:
         self.coefs_ = None
         self.bias_ = None
 
-    def fit():
-        pass
+
+    def fit(self, x, y, iteration_number, error_hist_steps=100, standard_scale=True):
+        """
+        This method is used for fitting our data. 
+        params:
+        x: Our training features
+        y: our target values in traning data
+        iteration_num: Iteration steps for training our data
+        error_hist_steps: After each n steps, the error is appended in a error history list
+        standard_scaling: It performs standard scaling on our data
+        """
+        x = x.values
+        y = y.values
+        if standard_scale:
+            x = self.standard_scaling(x)
+
+        self.logistic_gradient_descent(x, y, iteration_number, error_hist_steps)
 
 
-    def logistic_gradient_descent(x, y, iteration_num, error_hist_steps):
-        
+
+    def predict(self, x: pd.DataFrame):
+        x = x.values
+        x = self.standard_scaling(x)
+        m = x.shape[0]
+        predicts = np.zeros((m,))
+        for i in range(m):
+            predicts[i] = self.sigmoid(np.dot(x[i], self.coefs_) + self.bias_)
+
+        return predicts
+    
+
+
+    def logistic_gradient_descent(self, x, y, iteration_num, error_hist_steps):
+        n = x.shape[1]
+        self.coefs_ = np.zeros((n,))
+        self.bias_ = 0.
+
+        for i in range(iteration_num):
+            dj_dw, dj_db = self.logistic_gradient(x, y, self.coefs_, self.bias_)
+            self.coefs_ -= self.alpha * dj_dw
+            self.bias_ -= self.alpha * dj_db
+            if (i + 1) %  error_hist_steps == 0:
+                error = self.total_cost(x, y)
+                self.cost_hist.append(error)
 
 
     def logistic_gradient(self, x: np.array, y: np.array, w: np.array, b):
@@ -65,3 +103,10 @@ class LogisticRegression:
         """
         g = 1 / (1 + np.exp(-z))
         return g
+    
+
+    def standard_scaling(self, x: np.array):
+        mean = np.mean(x, axis=0)
+        std = np.std(x, axis=0)
+
+        return (x - mean) / std 
