@@ -91,12 +91,12 @@ class SGDRegressor:
 
         for i in range(m):
             # First we compute the error for this scatter regarding our current weights in w and b
-            y_hat = np.dot(w, x[i]) + b 
+            error = (np.dot(w, x[i]) + b) - y[i] 
             # Then we compute partial derivitives for our all w's 
             for j in range(n):
-                dj_dw[j] += (y_hat - y[n]) * x[i][j]
+                dj_dw[j] += error * x[i, j]
             # We have to update b too
-            dj_db += y_hat - y[n]
+            dj_db += error 
         dj_dw /= m
         dj_db /= m
 
