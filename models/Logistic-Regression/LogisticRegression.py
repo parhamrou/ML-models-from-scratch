@@ -64,10 +64,10 @@ class LogisticRegression:
         
         for i in range(m):
             # First we calculate the error for this row
-            g = self.sigmoid(np.dot(self.coefs_, x) + self.bias_) - y[m]
+            g = self.sigmoid(np.dot(self.coefs_, x[i]) + self.bias_)
             error = g - y[i]
             for j in range(n):
-                dj_dw[n] += error * x[i, j]
+                dj_dw[j] += error * x[i, j]
             dj_db += error
 
         dj_dw /= m
@@ -87,9 +87,9 @@ class LogisticRegression:
         m = x.shape[0]
         cost = 0
         # We loop over all of the rows in training set and add their error to the total cost
-        for m in range(m):
-            z = np.dot(self.coefs_, x) + self.bias_
-            cost += y * (np.log(-z)) + (1 - y) * (1 - np.log(-z))
+        for i in range(m):
+            z = self.sigmoid(np.dot(self.coefs_, x[i]) + self.bias_)
+            cost += y[i] * (np.log(z)) + (1 - y[i]) * np.log(1 - z)
         return cost / (-m)
 
 
