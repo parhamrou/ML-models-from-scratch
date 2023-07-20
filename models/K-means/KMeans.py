@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 class KMeans:
     """
@@ -6,14 +7,13 @@ class KMeans:
     """
     def __init__(self) -> None:
         self.n_cluster_ = None
-        self.cost_hist_ = []
         self.centroids_ = None
 
 
-    def fit(self, X: np.array, n_cluster, n_iter=100, max_iter=100) -> None:
-        self.cost_hist_ = []
+    def fit(self, X: pd.DataFrame, n_cluster, n_iter=100, max_iter=100) -> None:
         self.n_cluster_ = n_cluster
         self.centroids_ = None
+        X = X.values
 
         min_cost = np.inf
         for i in range(max_iter):
@@ -24,13 +24,15 @@ class KMeans:
                 self.centroids_ = centroid_coordinates
 
 
-    def fit_predict(self, X: np.array, n_cluster, n_iter=100, max_iter=100) -> np.array:
+    def fit_predict(self, X: pd.DataFrame, n_cluster, n_iter=100, max_iter=100) -> np.array:
         self.fit(X, n_cluster, n_iter, max_iter)
         return self.predict(X)
 
 
-    def predict(self, X: np.array):
-        m, n = X.shape
+    def predict(self, X: pd.DataFrame):
+        X = X.values
+        m = X.shape[0]
+        n = self.n_cluster_
         clusters = np.zeros(m, dtype=int)
 
         for i in range(m):
@@ -71,14 +73,15 @@ class KMeans:
         This method gets the X and centroids as input, and returns the new centroids for each cluster.
         centroids in this method is a numpy array which contains m indices, the number of clusters for each point in X.
         """    
-
+        n = X.shape[1]
+        centroid_coordinates = np.zeros((self.n_cluster_, n))
         # Iterating over the points in each cluster
-        for i in range(self.n_clusters):
+        for i in range(self.n_cluster_):
             points = X[centroids == i]
             mean = np.mean(points, axis=0)
-            centroids[i] = mean
+            centroid_coordinates[i] = mean
 
-        return centroids
+        return centroid_coordinates
     
     
     def find_closest_centroids(self, X: np.array, centroids: np.array):
@@ -87,7 +90,8 @@ class KMeans:
         Centroids in this method is a numpy array which has the sahpe(K, n), where K is the number of clusters and n is the number 
         of features.
         """
-        m, n = X.shape
+        m = X.shape[0]
+        n = self.n_cluster_
         centroids_indices = np.zeros(m, dtype=int)
         
         for i in range(m):
@@ -96,5 +100,4 @@ class KMeans:
                 distances[j] = np.linalg.norm(X[i] - centroids[j])
             centroids_indices[i] = np.argmin(distances)
             del distances 
-
         return centroids_indices
